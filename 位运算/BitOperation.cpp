@@ -104,7 +104,7 @@ int divide(int a, int b)
             // a - (b * c) = d
             // d / b = e
             // c + e
-            
+
             int c = divi(add(a, 1), b);
             return add(c, divi(minuss(b, multi(c, b)), b));
         }
@@ -117,6 +117,6 @@ int main()
 {
     int num = 3;
     // bit_print(num);
-    int ans = divi(20, -4);
+    int ans = divide(20, -4);
     cout << ans << endl;
 }
