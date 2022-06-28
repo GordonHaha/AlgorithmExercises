@@ -1,25 +1,27 @@
 #include <iostream>
+#include <queue>
+#include <vector>
 
 using namespace std;
 
 // 单向链表节点
-struct Node
+struct ListNode
 {
-    int value;
-    Node *next;
+    int val;
+    ListNode *next;
 
-    Node(int value) : value(value), next(nullptr){};
-    Node(int value, Node *next) : value(value), next(next){};
+    ListNode(int val) : val(val), next(nullptr){};
+    ListNode(int val, ListNode *next) : val(val), next(next){};
 };
 
 // 双向链表节点
-struct DoubleNode
+struct DoubleListNode
 {
-    int value;
-    DoubleNode *last;
-    DoubleNode *next;
-    DoubleNode(int value) : value(value), last(nullptr), next(nullptr){};
-    DoubleNode(int value, DoubleNode *last, DoubleNode *next) : value(value), last(last), next(next){};
+    int val;
+    DoubleListNode *last;
+    DoubleListNode *next;
+    DoubleListNode(int val) : val(val), last(nullptr), next(nullptr){};
+    DoubleListNode(int val, DoubleListNode *last, DoubleListNode *next) : val(val), last(last), next(next){};
 };
 
 // 单双链表的反转
@@ -28,10 +30,10 @@ struct DoubleNode
 // 给定一个双链表的头head，完成链表的逆序调整
 
 // 单链表反转
-Node *reverseLinkedList(Node *head)
+ListNode *reverseLinkedList(ListNode *head)
 {
-    Node *pre = nullptr;
-    Node *next = nullptr;
+    ListNode *pre = nullptr;
+    ListNode *next = nullptr;
     while (head)
     {
         next = head->next;
@@ -44,10 +46,10 @@ Node *reverseLinkedList(Node *head)
 
 // 双链表反转
 
-DoubleNode *reverseDoubleLinkedList(DoubleNode *head)
+DoubleListNode *reverseDoubleLinkedList(DoubleListNode *head)
 {
-    DoubleNode *pre = nullptr;
-    DoubleNode *next = nullptr;
+    DoubleListNode *pre = nullptr;
+    DoubleListNode *next = nullptr;
     while (head)
     {
         next = head->next;
@@ -59,11 +61,11 @@ DoubleNode *reverseDoubleLinkedList(DoubleNode *head)
     return pre;
 }
 
-void printLinkedList(Node *head)
+void printLinkedList(ListNode *head)
 {
     while (head)
     {
-        cout << head->value << " ";
+        cout << head->val << " ";
         head = head->next;
     }
     cout << endl;
@@ -79,7 +81,7 @@ K个节点的组内逆序调整
 */
 
 // 返回头结点start长度为k的链表尾结点
-Node *getKGroupEnd(Node *start, int k)
+ListNode *getKGroupEnd(ListNode *start, int k)
 {
     while (--k != 0 && start != nullptr)
     {
@@ -89,11 +91,11 @@ Node *getKGroupEnd(Node *start, int k)
 }
 
 // 反转区间链表
-void reverse(Node *start, Node *end)
+void reverse(ListNode *start, ListNode *end)
 {
-    Node *pre = nullptr;
-    Node *cur = start;
-    Node *next = nullptr;
+    ListNode *pre = nullptr;
+    ListNode *cur = start;
+    ListNode *next = nullptr;
     while (cur != end)
     {
         next = cur->next;
@@ -105,10 +107,10 @@ void reverse(Node *start, Node *end)
 }
 
 // 目标函数 k个节点的组内逆序调整
-Node *reverseKGroup(Node *head, int k)
+ListNode *reverseKGroup(ListNode *head, int k)
 {
-    Node *start = head;
-    Node *end = getKGroupEnd(start, k);
+    ListNode *start = head;
+    ListNode *end = getKGroupEnd(start, k);
     if (end == nullptr)
     {
         return head;
@@ -116,7 +118,7 @@ Node *reverseKGroup(Node *head, int k)
 
     head = end;
     reverse(start, end);
-    Node *lastEnd = start;
+    ListNode *lastEnd = start;
     while (lastEnd->next)
     {
         start = lastEnd->next;
@@ -143,7 +145,7 @@ Node *reverseKGroup(Node *head, int k)
 */
 
 // 求链表长度
-int listLength(Node *head)
+int listLength(ListNode *head)
 {
     int len = 0;
     while (head)
@@ -154,24 +156,24 @@ int listLength(Node *head)
     return len;
 }
 
-Node *addTwoNumbers(Node *head1, Node *head2)
+ListNode *addTwoNumbers(ListNode *head1, ListNode *head2)
 {
     int len1 = listLength(head1);
     int len2 = listLength(head2);
 
-    Node *l = len1 >= len2 ? head1 : head2;
-    Node *s = l == head1 ? head2 : head1;
+    ListNode *l = len1 >= len2 ? head1 : head2;
+    ListNode *s = l == head1 ? head2 : head1;
 
-    Node *curL = l;
-    Node *curS = s;
-    Node *last = curL;
+    ListNode *curL = l;
+    ListNode *curS = s;
+    ListNode *last = curL;
 
     int carry = 0;
     int curNum = 0;
     while (curS)
     {
-        curNum = curL->value + curS->value + carry;
-        curL->value = curNum % 10;
+        curNum = curL->val + curS->val + carry;
+        curL->val = curNum % 10;
         carry = curNum / 10;
         last = curL;
         curL = curL->next;
@@ -180,8 +182,8 @@ Node *addTwoNumbers(Node *head1, Node *head2)
 
     while (curL)
     {
-        curNum = curL->value + carry;
-        curL->value = curNum % 10;
+        curNum = curL->val + carry;
+        curL->val = curNum % 10;
         carry = curNum / 10;
         last = curL;
         curL = curL->next;
@@ -189,7 +191,7 @@ Node *addTwoNumbers(Node *head1, Node *head2)
 
     while (carry != 0)
     {
-        last->next = new Node(1);
+        last->next = new ListNode(1);
     }
     return l;
 }
@@ -203,21 +205,21 @@ Node *addTwoNumbers(Node *head1, Node *head2)
 返回 1 -> 2 -> 2 -> 3 -> 3 -> 3 -> 3 -> 5 -> 7
 */
 
-Node *mergeTwoLists(Node *head1, Node *head2)
+ListNode *mergeTwoLists(ListNode *head1, ListNode *head2)
 {
     if (head1 == nullptr || head2 == nullptr)
     {
         return head1 == nullptr ? head2 : head1;
     }
 
-    Node *head = head1->value <= head2->value ? head1 : head2;
-    Node *cur1 = head->next;
-    Node *cur2 = head == head1 ? head2 : head1;
-    Node *pre = head;
+    ListNode *head = head1->val <= head2->val ? head1 : head2;
+    ListNode *cur1 = head->next;
+    ListNode *cur2 = head == head1 ? head2 : head1;
+    ListNode *pre = head;
 
     while (cur1 && cur2)
     {
-        if (cur1->value <= cur2->value)
+        if (cur1->val <= cur2->val)
         {
             pre->next = cur1;
             cur1 = cur1->next;
@@ -227,17 +229,82 @@ Node *mergeTwoLists(Node *head1, Node *head2)
             pre->next = cur2;
             cur2 = cur2->next;
         }
+        pre = pre->next;
     }
 
     pre->next = cur1 != nullptr ? cur1 : cur2;
     return head;
 }
 
+// leetcode23:https://leetcode.cn/problems/merge-k-sorted-lists/
+/*
+合并k个升序链表
+给你一个链表数组，每个链表都已经按升序排列。
+请你将所有链表合并到一个升序链表中，返回合并后的链表。
+示例：
+输入：lists = [[1,4,5],[1,3,4],[2,6]]
+输出：[1,1,2,3,4,4,5,6]
+解释：链表数组如下：
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+将它们合并到一个有序链表中得到。
+1->1->2->3->4->4->5->6
+*/
+
+// 方法1 分解成合并两个链表，循环合并
+ListNode *mergeKLists1(vector<ListNode *> &lists)
+{
+    ListNode *ans = nullptr;
+    for (size_t i = 0; i < lists.size(); i++)
+    {
+        ans = mergeTwoLists(ans, lists[i]);
+    }
+    return ans;
+}
+
+// 方法2 利用优先级队列（小跟堆）处理
+
+// C++默认优先队列是大根堆，需要先重载
+struct Status
+{
+    int val;
+    ListNode *ptr;
+    bool operator<(const Status &rhs) const
+    {
+        return val > rhs.val;
+    }
+};
+
+priority_queue<Status> q;
+
+ListNode *mergeKLists2(vector<ListNode *> &lists)
+{
+    for (auto node : lists)
+    {
+        if (node)
+            q.push({node->val, node});
+    }
+    ListNode *head, *tail = head;
+    while (!q.empty())
+    {
+        auto f = q.top();
+        q.pop();
+        tail->next = f.ptr;
+        tail = tail->next;
+        if (f.ptr->next)
+            q.push({f.ptr->next->val, f.ptr->next});
+    }
+    return head->next;
+}
+
 int main()
 {
-    Node *n1 = new Node(1);
-    n1->next = new Node(2);
-    n1->next->next = new Node(3);
+    ListNode *n1 = new ListNode(1);
+    n1->next = new ListNode(2);
+    n1->next->next = new ListNode(3);
     printLinkedList(n1);
     n1 = reverseLinkedList(n1);
     printLinkedList(n1);
