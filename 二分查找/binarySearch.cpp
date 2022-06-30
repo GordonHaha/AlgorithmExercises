@@ -92,7 +92,7 @@ int oneMinIndex(int arr[], int len)
     while (L < R - 1)
     {
         int mid = L + ((R - L) >> 1);
-        if (arr[mid] < arr[mid - 1] && arr[mid] << arr[mid + 1])
+        if (arr[mid] < arr[mid - 1] && arr[mid] < arr[mid + 1])
         {
             return mid;
         }

@@ -184,7 +184,7 @@ int main()
     int len = sizeof(arr) / sizeof(*arr);
     // quickSort1(arr, 0, len - 1);
     vector<int> varr(arr, arr + len);
-    quickSort2(varr);
+    quickSort(varr);
 
     for (int i = 0; i < len; i++)
     {
