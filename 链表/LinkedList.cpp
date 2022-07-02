@@ -71,6 +71,36 @@ void printLinkedList(ListNode *head)
     cout << endl;
 }
 
+// 删除链表中跟指定数相同的元素
+
+ListNode *removeValue(ListNode *head, int num)
+{
+    while (head)
+    {
+        // 先去掉跟指定数相同的头节点
+        if (head->val != num)
+        {
+            break;
+        }
+        head = head->next;
+    }
+
+    ListNode *pre = head, *cur = head;
+    while (cur)
+    {
+        if (cur->val == num)
+        {
+            pre->next = cur->next;
+        }
+        else
+        {
+            pre = cur;
+        }
+        cur = cur->next;
+    }
+    return head;
+}
+
 /*
 K个节点的组内逆序调整
 给定一个单链表的头结点head，和一个整数k
