@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ void process(int arr[], int L, int R)
     int mid = L + ((R - L) >> 1);
     process(arr, L, mid);
     process(arr, mid + 1, R);
+    mergeTwoPart(arr, L, mid, R);
 }
 
 void mergeTwoPart(int arr[], int L, int M, int R)
@@ -151,6 +153,8 @@ void mergeSort3(int arr[], int len)
             mergeTwoPart(arr, L, M, R);
             L = R + 1;
         }
+
+        // 防溢出
         if (mergeSize > N / 2)
         {
             break;
@@ -158,4 +162,56 @@ void mergeSort3(int arr[], int len)
 
         mergeSize <<= 1;
     }
+}
+
+// ============================
+
+// 给定一个数组，求每一个元素左边比它小的元素总和
+
+int smallSum(vector<int> &arr) {
+    if (arr.size() < 2) {
+        return 0;
+    }
+    return processSum(arr, 0, arr.size() - 1);
+}
+
+// arr[L...R]既要排好序，也要求小和返回
+// 所以merge时，产生的小和，累加
+// 左 排序 merge
+// 右 排序 merge
+// merge
+int processSum(vector<int> &arr, int l, int r) {
+    if (l == r)
+        return 0;
+
+    int mid = l + ((r - l) >> 1);
+    return processSum(arr, l, mid) + processSum(arr, mid + 1, r) + mergeSum(arr, l, mid, r);
+}
+
+int mergeSum(vector<int> &arr, int l, int m, int r) {
+    vector<int> help(arr.size());
+    int i = 0;
+    int p1 = l, p2 = m + 1;
+    int res = 0;
+    while (p1 <= m && p2 <= r)
+    {
+        res += arr[p1] < arr[p2] ? (r - p2 + 1) * arr[p1] : 0;
+        help[i++] = arr[p1] < arr[p2] ? arr[p1++] : arr[p2++];
+    }
+
+    while (p1 <= m)
+    {
+        help[i++] = arr[p1++];
+    }
+
+    while (p2 <= r)
+    {
+        help[i++] = arr[p2++];
+    }
+
+    for (i = 0; i < help.size(); i++) {
+        arr[l + i] = help[i];
+    }
+
+    return res;
 }

@@ -18,6 +18,14 @@
         "string_view": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp",
-        "iterator": "cpp"
-    }
+        "iterator": "cpp",
+        "__config": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "__tree": "cpp",
+        "initializer_list": "cpp",
+        "random": "cpp",
+        "algorithm": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
