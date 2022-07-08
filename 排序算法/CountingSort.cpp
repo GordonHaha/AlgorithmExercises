@@ -14,7 +14,50 @@
 （3）对所有的计数累加（从C中的第一个元素开始，每一项和前一项相加）
 （4）反向填充目标数组：将每个元素i放在新数组的第C(i)项，每放一个元素就将C(i)减去1
 */
+#include <bits/stdc++.h>
+using namespace std;
 
-void countingSort(int arr[], int len) {
-    
+void countingSort(int arr[], int len)
+{
+    if (!arr || len < 2)
+    {
+        return;
+    }
+
+    int maxVal = INT_MIN;
+    for (int i = 0; i < len; i++)
+    {
+        maxVal = max(maxVal, arr[i]);
+    }
+
+    int bucket[maxVal + 1];
+    for (int i = 0; i < maxVal + 1; i++)
+    {
+        bucket[i] = 0;
+    }
+
+    for (int i = 0; i < len; i++)
+    {
+        bucket[arr[i]]++;
+    }
+    int i = 0;
+    for (int j = 0; j < maxVal + 1; j++)
+    {
+        while (bucket[j]-- > 0)
+        {
+            arr[i++] = j;
+        }
+    }
+}
+
+int main() {
+    int arr[] = {61, 17, 29, 22, 34, 60, 72, 21, 50, 1, 62};
+    int len = sizeof(arr) / sizeof(*arr);
+    countingSort(arr, len);
+    for (int i = 0; i < len; i++)
+    {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+    return 0;
 }

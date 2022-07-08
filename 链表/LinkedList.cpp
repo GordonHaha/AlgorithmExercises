@@ -339,3 +339,156 @@ int main()
     n1 = reverseLinkedList(n1);
     printLinkedList(n1);
 }
+
+/*
+给定两个可能有环也可能无环的单链表，头节点head1和head2.
+请实现一个函数，如果两个链表相交，请返回相交的第一个节点。
+如果不相交，返回null
+要求：
+如果两个链表长度之和为N，时间复杂度请达到O(N)，额外空间复杂度请达到O(1)。
+*/
+
+// 找到入环节点，无环则返回NULL
+ListNode *getLoopNode(ListNode *head)
+{
+    if (!head || !head->next || !head->next->next)
+    {
+        return NULL;
+    }
+
+    ListNode *slow = head->next;
+    ListNode *fast = head->next->next;
+    while (slow != fast)
+    {
+        if (!fast->next || !fast->next->next)
+        {
+            return NULL;
+        }
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    fast = head;
+    while (slow != fast)
+    {
+        slow = slow->next;
+        fast = fast->next;
+    }
+
+    return slow;
+}
+
+// 两个无环链表的相交节点，不相交就返回NULL
+ListNode *noLoop(ListNode *head1, ListNode *head2)
+{
+    if (!head1 || !head2)
+    {
+        return NULL;
+    }
+
+    ListNode *cur1 = head1;
+    ListNode *cur2 = head2;
+    int n = 0;
+    while (cur1->next)
+    {
+        n++;
+        cur1 = cur1->next;
+    }
+
+    while (cur2->next)
+    {
+        n--;
+        cur2 = cur2->next;
+    }
+
+    if (cur1 != cur2)
+    {
+        return NULL;
+    }
+
+    cur1 = n > 0 ? head1 : head2;
+    cur2 = cur1 == head1 ? head2 : head1;
+
+    n = abs(n);
+    while (n != 0)
+    {
+        n--;
+        cur1 = cur1->next;
+    }
+
+    while (cur1 != cur2)
+    {
+        cur1 = cur1->next;
+        cur2 = cur2->next;
+    }
+
+    return cur1;
+}
+
+ListNode *bothLoop(ListNode *head1, ListNode *head2, ListNode *loop1, ListNode *loop2)
+{
+    ListNode *cur1, *cur2;
+    if (loop1 == loop2)
+    {
+        cur1 = head1;
+        cur2 = head2;
+        int n = 0;
+        while (cur1 != loop1)
+        {
+            n++;
+            cur1 = cur1->next;
+        }
+        while (cur2 != loop2)
+        {
+            n--;
+            cur2 = cur2->next;
+        }
+
+        cur1 = n > 0 ? head1 : head2;
+        cur2 = cur1 == head1 ? head2 : head1;
+        while (n != 0)
+        {
+            n--;
+            cur1 = cur1->next;
+        }
+
+        while (cur1 != cur2)
+        {
+            cur1 = cur1->next;
+            cur2 = cur2->next;
+        }
+        return cur1;
+    }
+    else
+    {
+        cur1 = loop1->next;
+        while (cur1 != loop1)
+        {
+            if (cur1 == loop2)
+            {
+                return cur1;
+            }
+            cur1 = cur1->next;
+        }
+        return NULL;
+    }
+}
+
+ListNode *getIntersectNode(ListNode *head1, ListNode *head2) {
+    if (!head1 || !head2)
+    {
+        return NULL;
+    }
+
+    ListNode *loop1 = getLoopNode(head1);
+    ListNode *loop2 = getLoopNode(head2);
+    if (!loop1 && !loop2)
+    {
+        return noLoop(head1, head2);
+    }
+    if (loop1 && loop2)
+    {
+        return bothLoop(head1, head2, loop1, loop2);
+    }
+    return NULL;
+}

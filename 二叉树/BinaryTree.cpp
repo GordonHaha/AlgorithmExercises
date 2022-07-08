@@ -1,8 +1,4 @@
-#include <iostream>
-#include <cmath>
-#include <vector>
-#include <unordered_map>
-#include <queue>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -27,6 +23,29 @@ void pre(TreeNode *head)
     pre(head->right);
 }
 
+void pre1(TreeNode *head)
+{
+    if (head)
+    {
+        stack<TreeNode *> stack;
+        stack.push(head);
+        while (!stack.empty())
+        {
+            head = stack.top();
+            stack.pop();
+            cout << head->val << endl;
+            if (head->right != NULL)
+            {
+                stack.push(head->right);
+            }
+            if (head->left != NULL)
+            {
+                stack.push(head->left);
+            }
+        }
+    }
+}
+
 // 中序遍历 左头右
 void in(TreeNode *head)
 {
@@ -36,6 +55,29 @@ void in(TreeNode *head)
     in(head->left);
     cout << head->val << endl;
     in(head->right);
+}
+
+void in1(TreeNode *head)
+{
+    if (head)
+    {
+        stack<TreeNode *> stack;
+        while (!stack.empty() || head)
+        {
+            if (head)
+            {
+                stack.push(head);
+                head = head->left;
+            }
+            else
+            {
+                head = stack.top();
+                stack.pop();
+                cout << head->val << endl;
+                head = head->right;
+            }
+        }
+    }
 }
 
 // 后序遍历 左右头
@@ -48,21 +90,89 @@ void pos(TreeNode *head)
     cout << head->val << endl;
 }
 
-int main()
+void pos1(TreeNode *head)
 {
-    TreeNode *head = new TreeNode(1);
-    head->left = new TreeNode(2);
-    head->right = new TreeNode(3);
-    head->left->left = new TreeNode(4);
-    head->left->right = new TreeNode(5);
-    head->right->left = new TreeNode(6);
-    head->right->right = new TreeNode(7);
-    pre(head);
-    cout << "==========" << endl;
-    in(head);
-    cout << "==========" << endl;
-    pos(head);
-    cout << "==========" << endl;
+    if (head)
+    {
+        stack<TreeNode *> s1, s2;
+        s1.push(head);
+        while (!s1.empty())
+        {
+            head = s1.top();
+            s1.pop();
+            s2.push(head);
+            if (head->left != NULL)
+            {
+                s1.push(head->left);
+            }
+            if (head->right != NULL)
+            {
+                s1.push(head->right);
+            }
+        }
+        while (!s2.empty())
+        {
+            head = s2.top();
+            s2.pop();
+            cout << head->val << endl;
+        }
+    }
+}
+
+void pos2(TreeNode *head)
+{
+    if (head)
+    {
+        stack<TreeNode *> stack;
+        stack.push(head);
+        TreeNode *cur;
+        while (!stack.empty())
+        {
+            cur = stack.top();
+            if (cur->left && head != cur->left && head != cur->right)
+            {
+                stack.push(cur->left);
+            }
+            else if (cur->right && head != cur->right)
+            {
+                stack.push(cur->right);
+            }
+            else
+            {
+                TreeNode *temp = stack.top();
+                stack.pop();
+                cout << temp->val << endl;
+                head = cur;
+            }
+        }
+    }
+}
+
+// 二叉树的层序遍历
+
+void level(TreeNode *head)
+{
+    if (!head)
+    {
+        return;
+    }
+
+    queue<TreeNode *> queue;
+    queue.push(head);
+    while (!queue.empty())
+    {
+        TreeNode *cur = queue.front();
+        queue.pop();
+        cout << cur->val << endl;
+        if (cur->left)
+        {
+            queue.push(cur->left);
+        }
+        if (cur->right)
+        {
+            queue.push(cur->right);
+        }
+    }
 }
 
 // https://leetcode.cn/problems/same-tree/、
@@ -91,11 +201,6 @@ bool isSameTree(TreeNode *p, TreeNode *q)
 给你一个二叉树的根节点 root ，检查它是否轴对称。
 */
 
-bool isSymmetric(TreeNode *root)
-{
-    return isMirror(root, root);
-}
-
 bool isMirror(TreeNode *h1, TreeNode *h2)
 {
     if (!h1 ^ !h2)
@@ -109,6 +214,11 @@ bool isMirror(TreeNode *h1, TreeNode *h2)
     }
 
     return h1->val == h2->val && isMirror(h1->left, h2->right) && isMirror(h1->right, h2->left);
+}
+
+bool isSymmetric(TreeNode *root)
+{
+    return isMirror(root, root);
 }
 
 // https://leetcode.cn/problems/maximum-depth-of-binary-tree/
@@ -136,15 +246,6 @@ int maxDepth(TreeNode *root)
 */
 
 // 方法1
-TreeNode *buildTree1(vector<int> &preorder, vector<int> &inorder)
-{
-    if (preorder.empty() || inorder.empty() || preorder.size() != inorder.size())
-    {
-        return nullptr;
-    }
-
-    return myBuild1(preorder, 0, preorder.size() - 1, inorder, 0, inorder.size() - 1);
-}
 
 /*
 有一棵树，先序结果是preorder[L1...R1], 中序结果是inorder[L2...R2]
@@ -176,22 +277,17 @@ TreeNode *myBuild1(const vector<int> &preorder, int L1, int R1, const vector<int
     return head;
 }
 
-// 方法2
-TreeNode *buildTree2(vector<int> &preorder, vector<int> &inorder)
+TreeNode *buildTree1(vector<int> &preorder, vector<int> &inorder)
 {
     if (preorder.empty() || inorder.empty() || preorder.size() != inorder.size())
     {
         return nullptr;
     }
 
-    unordered_map<int, int> valIndexMap;
-    for (size_t i = 0; i < inorder.size(); i++)
-    {
-        valIndexMap.insert({inorder[i], i});
-    }
-
-    return myBuild2(preorder, 0, preorder.size() - 1, inorder, 0, inorder.size() - 1, valIndexMap);
+    return myBuild1(preorder, 0, preorder.size() - 1, inorder, 0, inorder.size() - 1);
 }
+
+// 方法2
 
 TreeNode *myBuild2(const vector<int> &preorder, int L1, int R1, const vector<int> &inorder, int L2, int R2, unordered_map<int, int> &valIndexMap)
 {
@@ -212,6 +308,22 @@ TreeNode *myBuild2(const vector<int> &preorder, int L1, int R1, const vector<int
     head->left = myBuild2(preorder, L1 + 1, L1 + find - L2, inorder, L2, find - 1, valIndexMap);
     head->right = myBuild2(preorder, L1 + find - L2 + 1, R1, inorder, find + 1, R2, valIndexMap);
     return head;
+}
+
+TreeNode *buildTree2(vector<int> &preorder, vector<int> &inorder)
+{
+    if (preorder.empty() || inorder.empty() || preorder.size() != inorder.size())
+    {
+        return nullptr;
+    }
+
+    unordered_map<int, int> valIndexMap;
+    for (size_t i = 0; i < inorder.size(); i++)
+    {
+        valIndexMap.insert({inorder[i], i});
+    }
+
+    return myBuild2(preorder, 0, preorder.size() - 1, inorder, 0, inorder.size() - 1, valIndexMap);
 }
 
 // https://leetcode.cn/problems/binary-tree-level-order-traversal-ii/
@@ -262,11 +374,6 @@ vector<vector<int>> levelOrderBottom(TreeNode *root)
 一个二叉树每个节点 的左右两个子树的高度差的绝对值不超过 1 。
 */
 
-bool isBalanced(TreeNode *root)
-{
-    return process(root)->isBalanced;
-}
-
 // 以某个节点头的时候，1）整棵树是否平 2）整棵树的高度是什么
 class Info
 {
@@ -291,6 +398,51 @@ Info *process(TreeNode *x)
     return new Info(isBalanced, height);
 }
 
+bool isBalanced(TreeNode *root)
+{
+    return process(root)->isBalanced;
+}
+
+// 判断一棵二叉树是否是完全二叉树
+
+bool isCBT1(TreeNode *head)
+{
+    if (!head)
+    {
+        return true;
+    }
+
+    queue<TreeNode *> queue;
+    // 是否遇到过左右两个孩子不双全的节点
+    bool leaf = false;
+    TreeNode *l, *r;
+    queue.push(head);
+    while (!queue.empty())
+    {
+        head = queue.front();
+        queue.pop();
+        l = head->left;
+        r = head->right;
+        if ((leaf && (l || r)) || (!l && r))
+        {
+            return false;
+        }
+        if (l)
+        {
+            queue.push(l);
+        }
+        if (r)
+        {
+            queue.push(r);
+        }
+        if (!l || !r)
+        {
+            leaf = true;
+        }
+    }
+    return true;
+}
+
 // https://leetcode.cn/problems/validate-binary-search-tree/
 /*
 验证二叉搜索树
@@ -300,11 +452,6 @@ Info *process(TreeNode *x)
 节点的右子树只包含 大于 当前节点的数。
 所有左子树和右子树自身必须也是二叉搜索树。
 */
-
-bool isValidBST(TreeNode *root)
-{
-    return process2(root)->isBST;
-}
 
 class Info2
 {
@@ -361,6 +508,11 @@ Info2 *process2(TreeNode *x)
     return new Info2(isBST, maxVal, minVal);
 }
 
+bool isValidBST(TreeNode *root)
+{
+    return process2(root)->isBST;
+}
+
 // https://leetcode.cn/problems/path-sum/
 /*
 路径总和
@@ -408,4 +560,220 @@ vector<vector<int>> pathSum(TreeNode *root, int sum)
     vector<int> tmp;
     dfs(root, tmp, sum);
     return res;
+}
+
+// 二叉树序列化
+
+void pres(TreeNode *head, queue<string> ans)
+{
+    if (!head)
+    {
+        ans.push(NULL);
+    }
+    else
+    {
+        ans.push(to_string(head->val));
+        pres(head->left, ans);
+        pres(head->right, ans);
+    }
+}
+
+queue<string> preSerial(TreeNode *head)
+{
+    queue<string> ans;
+    pres(head, ans);
+    return ans;
+}
+
+// 二叉树反序列化
+
+TreeNode *preb(queue<string> &prelist)
+{
+    string value = prelist.front();
+    prelist.pop();
+    if (value.empty())
+    {
+        return NULL;
+    }
+    TreeNode *head = new TreeNode(stoi(value));
+    head->left = preb(prelist);
+    head->right = preb(prelist);
+    return head;
+}
+
+TreeNode *buildByPreQueue(queue<string> &prelist)
+{
+    if (prelist.empty())
+    {
+        return NULL;
+    }
+    return preb(prelist);
+}
+
+// 二叉树层序序列化
+queue<string> levelSerial(TreeNode *head)
+{
+    queue<string> ans;
+    if (!head)
+    {
+        ans.push(NULL);
+    }
+    else
+    {
+        ans.push(to_string(head->val));
+        queue<TreeNode *> queue;
+        queue.push(head);
+        while (!queue.empty())
+        {
+            head = queue.front();
+            queue.pop();
+            if (head->left)
+            {
+                ans.push(to_string(head->left->val));
+                queue.push(head->left);
+            }
+            else
+            {
+                ans.push(NULL);
+            }
+            if (head->right)
+            {
+                ans.push(to_string(head->right->val));
+                queue.push(head->right);
+            }
+            else
+            {
+                ans.push(NULL);
+            }
+        }
+    }
+    return ans;
+}
+
+// 二叉树层序反序列化
+
+TreeNode *generateNode(string val)
+{
+    if (val.empty())
+    {
+        return NULL;
+    }
+    return new TreeNode(stoi(val));
+}
+
+TreeNode *buildByLevelQueue(queue<string> levelList)
+{
+    if (levelList.empty())
+    {
+        return NULL;
+    }
+
+    TreeNode *head = generateNode(levelList.front());
+    levelList.pop();
+    queue<TreeNode *> queue;
+    if (!head)
+    {
+        queue.push(head);
+    }
+    TreeNode *node;
+    while (!queue.empty())
+    {
+        node = queue.front();
+        queue.pop();
+        node->left = generateNode(levelList.front());
+        levelList.pop();
+        node->right = generateNode(levelList.front());
+        levelList.pop();
+        if (node->left)
+        {
+            queue.push(node->left);
+        }
+        if (node->right)
+        {
+            queue.push(node->right);
+        }
+    }
+    return head;
+}
+
+// 给定一棵二叉树的头结点head，任何两个节点之间都存在距离，返回整棵二叉树的最大距离
+class Info3
+{
+public:
+    int maxDistance;
+    int height;
+
+    Info3(m, h) : maxDistance(m), height(h){};
+};
+
+Info3 *process3(TreeNode *x)
+{
+    if (!x)
+    {
+        return new Info3(0, 0);
+    }
+
+    Info3 *leftInfo = process3(x->left);
+    Info3 *rightInfo = process3(x->right);
+    int height = max(leftInfo->height, rightInfo->height) + 1;
+
+    int p1 = leftInfo->maxDistance;
+    int p2 = rightInfo->maxDistance;
+    int p3 = leftInfo->height + rightInfo->height + 1;
+    int maxDistance = max(max(p1, p2), p3);
+    return new Info3(maxDistance, height);
+}
+
+int maxDistance(TreeNode *head)
+{
+    return process3(head)->maxDistance;
+}
+
+// 判断一棵树是不是满二叉树
+
+class Info4
+{
+public:
+    int height;
+    int nodes;
+};
+
+Info4 *process4(TreeNode *head)
+{
+    if (!head)
+    {
+        return new Info4(0, 0);
+    }
+
+    Info4 *leftInfo = process4(head->left);
+    Info4 *rightInfo = process4(head->right);
+    int height = max(leftInfo->height, rightInfo->height) + 1;
+    int nodes = leftInfo->nodes + rightInfo->nodes + 1;
+    return new Info4(height, nodes);
+}
+
+bool isFull(TreeNode *head) {
+    if (!head)
+    {
+        return true;
+    }
+    Info4 *all = process4(head);
+    return (1 << all->height) - 1 == all->nodes;
+}
+
+int main()
+{
+    TreeNode *head = new TreeNode(1);
+    head->left = new TreeNode(2);
+    head->right = new TreeNode(3);
+    head->left->left = new TreeNode(4);
+    head->left->right = new TreeNode(5);
+    head->right->left = new TreeNode(6);
+    head->right->right = new TreeNode(7);
+    pre(head);
+    cout << "==========" << endl;
+    in(head);
+    cout << "==========" << endl;
+    pos(head);
+    cout << "==========" << endl;
 }

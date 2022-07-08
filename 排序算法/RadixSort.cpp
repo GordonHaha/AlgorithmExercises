@@ -14,7 +14,7 @@ using namespace std;
 
 int maxbits(int arr[], int len)
 {
-    int maxNum = INT_MAX;
+    int maxNum = INT_MIN;
     for (int i = 0; i < len; i++)
     {
         maxNum = max(maxNum, arr[i]);
@@ -29,11 +29,17 @@ int maxbits(int arr[], int len)
     return res;
 }
 
+int getDigit(int x, int d)
+{
+    return ((x / ((int)pow(10, d - 1))) % 10);
+}
+
 void radixSort(int arr[], int L, int R, int digit)
 {
     int radix = 10;
     int i = 0, j = 0;
     int help[R - L + 1];
+    
     for (int d = 1; d <= digit; d++)
     {
         // 10个空间
@@ -42,9 +48,28 @@ void radixSort(int arr[], int L, int R, int digit)
         // count[2] 当前位(d位)是(0、1和2）的数字有多少个
         // count[i] 当前位(d位)是(0~i)的数字有多少个
         int count[radix];
+        for (int i = 0; i < radix; i++)
+        {
+            count[i] = 0;
+        }
         for (i = L; i <= R; i++)
         {
-            
+            j = getDigit(arr[i], d);
+            count[j]++;
+        }
+        for (i = 1; i < radix; i++)
+        {
+            count[i] = count[i] + count[i - 1];
+        }
+        for (i = R; i >= L; i--)
+        {
+            j = getDigit(arr[i], d);
+            help[count[j] - 1] = arr[i];
+            count[j]--;
+        }
+        for (i = L, j = 0; i <= R; i++, j++)
+        {
+            arr[i] = help[j];
         }
     }
 }
@@ -60,5 +85,13 @@ void radixSort(int arr[], int len)
 
 int main()
 {
+    int arr[] = {61, 17, 29, 22, 34, 60, 72, 21, 50, 1, 62};
+    int len = sizeof(arr) / sizeof(*arr);
+    radixSort(arr, len);
+    for (int i = 0; i < len; i++)
+    {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
     return 0;
 }
