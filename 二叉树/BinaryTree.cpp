@@ -703,7 +703,7 @@ public:
     int maxDistance;
     int height;
 
-    Info3(m, h) : maxDistance(m), height(h){};
+    Info3(int m, int h) : maxDistance(m), height(h){};
 };
 
 Info3 *process3(TreeNode *x)
@@ -736,6 +736,8 @@ class Info4
 public:
     int height;
     int nodes;
+
+    Info4(int h, int n) : height(h), nodes(n){};
 };
 
 Info4 *process4(TreeNode *head)
@@ -752,13 +754,95 @@ Info4 *process4(TreeNode *head)
     return new Info4(height, nodes);
 }
 
-bool isFull(TreeNode *head) {
+bool isFull(TreeNode *head)
+{
     if (!head)
     {
         return true;
     }
     Info4 *all = process4(head);
     return (1 << all->height) - 1 == all->nodes;
+}
+
+// 寻找最大二叉搜索树节点个数
+
+class Info5
+{
+public:
+    int maxBSTSubtreeSize;
+    int allSize;
+    int max;
+    int min;
+
+    Info5(int ms, int as, int max, int min) : maxBSTSubtreeSize(ms), allSize(as), max(max), min(min){};
+};
+
+Info5 *process5(TreeNode *x)
+{
+    if (!x)
+    {
+        return NULL;
+    }
+
+    Info5 *leftInfo = process5(x->left);
+    Info5 *rightInfo = process5(x->right);
+    int maxVal = x->val;
+    int minVal = x->val;
+    int allSize = 1;
+    if (leftInfo)
+    {
+        maxVal = max(leftInfo->max, maxVal);
+        minVal = min(leftInfo->min, minVal);
+        allSize += leftInfo->allSize;
+    }
+
+    if (rightInfo)
+    {
+        maxVal = max(rightInfo->max, maxVal);
+        minVal = min(rightInfo->min, minVal);
+        allSize += rightInfo->allSize;
+    }
+
+    int p1 = -1;
+    if (leftInfo)
+    {
+        p1 = leftInfo->maxBSTSubtreeSize;
+    }
+
+    int p2 = -1;
+    if (rightInfo)
+    {
+        p2 = rightInfo->maxBSTSubtreeSize;
+    }
+
+    int p3 = -1;
+    bool leftBST = leftInfo == NULL ? true : (leftInfo->maxBSTSubtreeSize == leftInfo->allSize);
+    bool rightBST = rightInfo == NULL ? true : (rightInfo->maxBSTSubtreeSize == rightInfo->allSize);
+    if (leftBST && rightBST)
+    {
+        bool leftMaxLessX = leftInfo == NULL ? true : (leftInfo->max < x->val);
+        bool rightMinMoreX = rightInfo == NULL ? true : (rightInfo->min > x->val);
+        if (leftMaxLessX && rightMinMoreX)
+        {
+            int leftSize = leftInfo == NULL ? 0 : leftInfo->allSize;
+            int rightSize = rightInfo == NULL ? 0 : rightInfo->allSize;
+            p3 = leftSize + rightSize + 1;
+        }
+    }
+
+    int maxBSTSubtreeSize = max(max(p1, p2), p3);
+
+    return new Info5(maxBSTSubtreeSize, allSize, maxVal, minVal);
+}
+
+int maxSubBSTSize(TreeNode *head)
+{
+    if (!head)
+    {
+        return 0;
+    }
+
+    return process5(head)->maxBSTSubtreeSize;
 }
 
 int main()
@@ -777,3 +861,15 @@ int main()
     pos(head);
     cout << "==========" << endl;
 }
+
+
+
+/*
+二叉树的递归套路
+1）假设以X节点为头，假设可以向X左树和X右树要任何信息
+2）在上一步的假设下，讨论以x为头节点的树，得到答案的可能性（最重要）
+3）列出所有可能性后，确定到底需要向左树和右树要什么样的信息
+4）把左树信息和右树信息求全集，就是任何一棵子树都需要返回的信息S
+5）递归函数都返回S，每一棵子树都这么要求
+6）写代码，在代码中考虑如何把左树的信息和右树的信心整合出整棵树的信息
+*/
