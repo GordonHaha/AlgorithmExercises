@@ -317,6 +317,128 @@ unordered_map<Node *, int> dijkstra(Node *head)
     return distanceMap;
 }
 
+// 改写堆实现Dijkstra算法
+
+class NodeRecord
+{
+public:
+    Node *node;
+    int distance;
+
+    NodeRecord(Node *node, int distance) : node(node), distance(distance){};
+};
+
+class NodeHeap
+{
+public:
+    vector<Node *> nodes;
+    unordered_map<Node *, int> heapIndexMap;
+    unordered_map<Node *, int> distanceMap;
+    int size;
+
+    NodeHeap(int size)
+    {
+
+        nodes.resize(size);
+        size = 0;
+    }
+
+    bool isEmpty()
+    {
+        return size == 0;
+    }
+
+    bool isEntered(Node *node)
+    {
+        return heapIndexMap.find(node) != heapIndexMap.end();
+    }
+
+    bool inHeap(Node *node)
+    {
+        return isEntered(node) && heapIndexMap[node] != -1;
+    }
+
+    void swap(int index1, int index2)
+    {
+        heapIndexMap.emplace(nodes[index1], index2);
+        heapIndexMap.emplace(nodes[index2], index1);
+        Node tmp = nodes[index1];
+        nodes[index1] = nodes[index2];
+        nodes[index2] = tmp;
+    }
+
+    void insertHeapify(Node *node, int index)
+    {
+        while (distanceMap[nodes[index]] < distanceMap[nodes[(index - 1) / 2]])
+        {
+            swap(index, (index - 1) / 2);
+            index = (index - 1) / 2;
+        }
+    }
+
+    void heapify(int index, int size)
+    {
+        int left = index * 2 + 1;
+        while (left < size)
+        {
+            int smallest = left + 1 < size && distanceMap[nodes[left + 1]] < distanceMap[nodes[left]] ? left + 1 : left;
+            smallest = distanceMap[nodes[smallest]] < distanceMap[nodes[index]] ? smallest : index;
+            if (smallest == index)
+            {
+                break;
+            }
+            swap(smallest, index);
+            index = smallest;
+            left = index * 2 + 1;
+        }
+    }
+
+    NodeRecord * pop() {
+        NodeRecord *nodeRecord = new NodeRecord(nodes[0], distanceMap[nodes[0]]);
+        swap(0, size - 1);
+        heapIndexMap.emplace(nodes[size - 1], -1);
+        distanceMap.erase(nodes[size - 1]);
+        nodes[size - 1] = NULL;
+        heapify(0, --size);
+        return nodeRecord;
+    }
+
+    void addOrUpdateOrOgnore(Node *node, int distance)
+    {
+        if (inHeap(node))
+        {
+            distanceMap.emplace(node, min(distanceMap[node], distance));
+            insertHeapify(node, heapIndexMap[node]);
+        }
+        if (!isEntered(node))
+        {
+            nodes[size] = node;
+            heapIndexMap.emplace(node, size);
+            distanceMap.emplace(node, distance);
+            insertHeapify(node, size++);
+        }
+    }
+};
+
+// 改进后的dijkstra算法
+// 从head出发，所有head能到达的节点，生成到达每个节点的最小路径记录并返回
+unordered_map<Node*, int> dijkstra2(Node* head, int size) {
+    NodeHeap nodeHeap = new NodeHeap(size);
+    nodeHeap.addOrUpdateOrOgnore(head, 0);
+    unordered_map<Node *, int> result;
+    while (!nodeHeap.isEmpty())
+    {
+        NodeRecord *record = nodeHeap.pop();
+        Node *cur = record->node;
+        int distance = record->distance;
+        for(Edge *edge : cur->edges) {
+            nodeHeap.addOrUpdateOrOgnore(edge->to, edge->weight + distance);
+        }
+        result.emplace(cur.distance);
+    }
+    return result;
+}
+
 int main()
 {
     return 0;

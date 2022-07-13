@@ -54,7 +54,8 @@ int bestArrange(vector<Program *> &programs, int timePoint)
 输入一个数组，返回分割的最小代价。
 */
 
-int lessMoney(vector<int> &arr) {
+int lessMoney(vector<int> &arr)
+{
     priority_queue<int, vector<int>, greater<int>> pQ;
     for (int i = 0; i < arr.size(); i++)
     {
@@ -91,7 +92,63 @@ m表示你初始的资金
 你最后获得的最大钱数。
 */
 
+class Node
+{
+public:
+    int profit;
+    int cost;
+    Node(int p, int c) : profit(p), cost(c){};
+};
 
-int main(){
+struct MinCostCmp
+{
+    bool operator()(Node *o1, Node *o2)
+    {
+        return o1->cost < o2->cost;
+    }
+};
+
+struct MaxProfitCmp
+{
+    bool operator()(Node *o1, Node *o2)
+    {
+        return o1->profit > o2->profit;
+    }
+};
+
+int findMaximizedCapital(int k, int W, vector<int> &Profits, vector<int> &Capital)
+{
+    priority_queue<Node *, vector<Node *>, MinCostCmp> minCostQ;
+    priority_queue<Node *, vector<Node *>, MaxProfitCmp> maxProfitQ;
+    // 所有项目扔到被锁池中，花费组织的小根堆
+    for (int i = 0; i < Profits.size(); i++)
+    {
+        minCostQ.push(new Node(Profits[i], Capital[i]));
+    }
+
+    for (int i = 0; i < k; i++) // 进行k轮
+    {
+        // 能力所及的项目，全解锁
+        while (!minCostQ.empty() && minCostQ.top()->cost <= W)
+        {
+            maxProfitQ.push(minCostQ.top());
+            minCostQ.pop();
+        }
+        if (maxProfitQ.empty())
+        {
+            return W;
+        }
+        W += maxProfitQ.top()->profit;
+        maxProfitQ.pop();
+    }
+    return W;
+}
+
+
+
+
+
+int main()
+{
     return 0;
 }
