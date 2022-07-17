@@ -491,7 +491,7 @@ int minStickers1(vector<string> &stickers, string target)
 // 方法二
 
 // stickers[i] 数组，当初i号贴纸的字符统计
-int processStr2(vector<vector<int> > &stickers, string t)
+int processStr2(vector<vector<int>> &stickers, string t)
 {
     if (t.length() == 0)
     {
@@ -537,7 +537,7 @@ int minStickers2(vector<string> &stickers, string &target)
 {
     int N = stickers.size();
     // 关键优化（用词频表替代贴纸数组）
-    vector<vector<int> > counts(N, vector<int>(26));
+    vector<vector<int>> counts(N, vector<int>(26));
     for (int i = 0; i < N; i++)
     {
         string str = stickers[i];
@@ -644,7 +644,8 @@ text1 和 text2 仅由小写英文字符组成。
 
 // 方法一 暴力递归
 // str1[0...i]与str2[0...j]最长公共子序列多长
-int processLCS1(string str1, string str2, int i, int j) {
+int processLCS1(string str1, string str2, int i, int j)
+{
     if (i == 0 && j == 0)
     {
         return str1[0] == str2[0] ? 1 : 0;
@@ -653,7 +654,7 @@ int processLCS1(string str1, string str2, int i, int j) {
     {
         return str1[0] == str2[j] ? 1 : processLCS1(str1, str2, 0, j - 1);
     }
-    if (j==0)
+    if (j == 0)
     {
         return str1[i] == str2[0] ? 1 : processLCS1(str1, str2, i - 1, 0);
     }
@@ -716,7 +717,279 @@ int longestCommonSubsequence2(string text1, string text2)
 最长回文子序列是"1234321"或者"123c321"，返回长度7
 */
 
+// 方法一 暴力递归
+// str[L...R]最长回文子序列长度返回
+int f(string str, int L, int R)
+{
+    if (L == R)
+    {
+        return 1;
+    }
+    if (L == R - 1)
+    {
+        return str[L] == str[R] ? 2 : 1;
+    }
 
+    int p1 = f(str, L + 1, R - 1);
+    int p2 = f(str, L, R - 1);
+    int p3 = f(str, L + 1, R);
+    int p4 = str[L] != str[R] ? 0 : (2 + f(str, L + 1, R - 1));
+    return max(max(p1, p2), max(p3, p4));
+}
+
+int longestPalindromeSubseq1(string s)
+{
+    if (s.empty())
+    {
+        return 0;
+    }
+    return f(s, 0, s.length() - 1);
+}
+
+// 方法二 动态规划
+
+int longestPalindromeSubseq2(string s)
+{
+    if (s.empty())
+    {
+        return 0;
+    }
+
+    int N = s.length();
+    vector<vector<int>> dp(N, vector<int>(N));
+    dp[N - 1][N - 1] = 1;
+    for (int i = 0; i < N - 1; i++)
+    {
+        dp[i][i] = 1;
+        dp[i][i + 1] = s[i] == s[i + 1] ? 2 : 1;
+    }
+
+    for (int L = N - 3; L >= 0; L--)
+    {
+        for (int R = L + 2; R < N; R++)
+        {
+            // int p1 = dp[L + 1][R - 1];
+            // int p2 = dp[L][R - 1];
+            // int p3 = dp[L + 1][R];
+            // int p4 = s[L] != s[R] ? 0 : (2 + dp[L + 1][R - 1]);
+            // dp[L][R] = max(max(p1, p2), max(p3, p4));
+
+            dp[L][R] = max(dp[L][R - 1], dp[L + 1][R]);
+            if (s[L] == s[R])
+            {
+                dp[L][R] = max(dp[L][R], 2 + dp[L + 1][R - 1]);
+            }
+        }
+    }
+
+    return dp[0][N - 1];
+}
+
+/*
+请同学们自行搜索或者想象一个象棋的棋盘，
+然后把整个棋盘放入第一象限，棋盘的最左下角是(0,0)位置
+那么整个棋盘就是横坐标上9条线、纵坐标上10条线的区域
+给你三个参数x,y,k
+返回“马”从(0,0)位置出发，必须走k步
+最后落在(x,y)上的方法数有多少种？
+*/
+
+// 方法一 暴力递归
+// 当前来到的位置是(x,y)
+// 还剩下rest步需要跳
+// 跳完rest步，正好跳到a,b的方法数是多少？
+// 10 * 9 棋盘
+int processJump(int x, int y, int rest, int a, int b)
+{
+    if (x < 0 || x > 9 || y < 0 || y > 8)
+    {
+        return 0;
+    }
+
+    if (rest == 0)
+    {
+        return (x == a && y == b) ? 1 : 0;
+    }
+
+    int ways = processJump(x + 2, y + 1, rest - 1, a, b);
+    ways += processJump(x + 1, y + 2, rest - 1, a, b);
+    ways += processJump(x - 1, y + 2, rest - 1, a, b);
+    ways += processJump(x - 2, y + 1, rest - 1, a, b);
+    ways += processJump(x - 2, y - 1, rest - 1, a, b);
+    ways += processJump(x - 1, y - 2, rest - 1, a, b);
+    ways += processJump(x + 1, y - 2, rest - 1, a, b);
+    ways += processJump(x + 2, y - 1, rest - 1, a, b);
+    return ways;
+}
+
+int jump1(int a, int b, int k)
+{
+    return processJump(0, 0, k, a, b);
+}
+
+// 方法2 动态规划
+
+int pick(vector<vector<vector<int>>> &dp, int x, int y, int rest)
+{
+    if (x < 0 || x > 9 || y < 0 || y > 8)
+    {
+        return 0;
+    }
+    return dp[x][y][rest];
+}
+
+int jump2(int a, int b, int k)
+{
+    vector<vector<vector<int>>> dp(10, vector<vector<int>>(9, vector<int>(k + 1)));
+    dp[a][b][0] = 1;
+    for (int rest = 1; rest <= k; rest++)
+    {
+        for (int x = 0; x < 10; x++)
+        {
+            for (int y = 0; y < 9; y++)
+            {
+                int ways = pick(dp, x + 2, y + 1, rest - 1);
+                ways += pick(dp, x + 1, y + 2, rest - 1);
+                ways += pick(dp, x - 1, y + 2, rest - 1);
+                ways += pick(dp, x - 2, y + 1, rest - 1);
+                ways += pick(dp, x - 2, y - 1, rest - 1);
+                ways += pick(dp, x - 1, y - 2, rest - 1);
+                ways += pick(dp, x + 1, y - 2, rest - 1);
+                ways += pick(dp, x + 2, y - 1, rest - 1);
+                dp[x][y][rest] = ways;
+            }
+        }
+    }
+
+    return dp[0][0][k];
+}
+
+/*
+给定一个数组arr，arr[i]代表第i号咖啡机泡一杯咖啡的时间
+给定一个正数N，表示N个人等着咖啡机泡咖啡，每台咖啡机只能轮流泡咖啡
+只有一台洗咖啡机，一次只能洗一个杯子，时间耗费a，洗完才能洗下一杯
+每个咖啡杯也可以自己挥发干净，时间耗费b，咖啡杯可以并行挥发
+假设所有人拿到咖啡之后立刻喝干净，
+返回从开始等到所有咖啡机变干净的最短时间
+三个参数：int arr[]、int N、int a、int b
+*/
+
+// process(drinks,3,10,0,0)
+// a 洗一杯的时间 固定变量
+// b 自己挥发干净的时间 固定变量
+// drinks 每一个员工喝完的时间 固定变量
+// drinks[0...index-1]都已经干净了，不用你操心了
+// drinks[index...]都想变干净，这是我操心的，washLine表示洗的机器何时可用
+// drinks[index...]变干净，最少的时间点返回
+
+// int processWash(vector<int> &drinks, int a, int b, int index, int washLine)
+// {
+//     if (index == drinks.size() - 1)
+//     {
+//         return min(max(washLine, drinks[index]) + a, drinks[index] + b);
+//     }
+
+//     // 剩不止一杯咖啡
+//     // wash是我当前的咖啡杯，洗完的时间
+//     int wash = max(washLine, drinks[index]) + a; // 洗，index一杯，结束的时间点
+//     // index+1...变干净的最早时间
+//     int next1 = processWash(drinks, a, b, index + 1, wash);
+//     // index...
+//     int p1 = max(wash, next1);
+//     int dry = drinks[index] + b; // 挥发，index一杯，结束的时间点
+//     int next2 = processWash(drinks, a, b, index + 1, washLine);
+//     int p2 = max(dry, next2);
+//     return min(p1, p2);
+// }
+
+int bestTime(vector<int> &drinks, int wash, int air, int index, int free)
+{
+    if (index == drinks.size())
+        return 0;
+
+    // index号被子，决定洗
+    int selfClean1 = max(drinks[index], free) + wash;
+    int restClean1 = bestTime(drinks, wash, air, index + 1, selfClean1);
+    int p1 = max(selfClean1, restClean1);
+
+    // index号被子 决定挥发
+    int selfClean2 = drinks[index] + air;
+    int restClean2 = bestTime(drinks, wash, air, index + 1, free);
+    int p2 = max(selfClean2, restClean2);
+    return min(p1, p2);
+}
+
+int bestTimeDp(vector<int> &drinks, int wash, int air)
+{
+    int N = drinks.size();
+    int maxFree = 0;
+    for (int i = 0; i < N; i++)
+    {
+        maxFree = max(maxFree, drinks[i]) + wash;
+    }
+
+    vector<vector<int>> dp(N + 1, vector<int>(maxFree + 1));
+
+    // dp[N][...] = 0
+    for (int index = N - 1; index >= 0; index--)
+    {
+        for (int free = 0; free <= maxFree; free++)
+        {
+            // index号被子，决定洗
+            int selfClean1 = max(drinks[index], free) + wash;
+            if (selfClean1 > maxFree)
+            {
+                continue;
+            }
+
+            int restClean1 = dp[index + 1][selfClean1];
+            int p1 = max(selfClean1, restClean1);
+
+            // index号被子 决定挥发
+            int selfClean2 = drinks[index] + air;
+            int restClean2 = dp[index + 1][free];
+            int p2 = max(selfClean2, restClean2);
+            dp[idnex][free] = min(p1, p2);
+        }
+    }
+    return dp[0][0];
+}
+
+class Machine
+{
+public:
+    int timePoint;
+    int workTime;
+    Machine(int t, int w) : timePoint(t), workTime(t) {}
+};
+
+struct MachineCmp
+{
+    bool operator()(Machine o1, Machine o2)
+    {
+        return (o1.timePoint + o1.workTime) < (o2.timePoint, o2.workTime);
+    }
+};
+
+int minTime(vector<int> &arr, int n, int a, int b)
+{
+    priority_queue<Machine *, vector<Machine *>, MachineCmp()> heap;
+    for (int i = 0; i < arr.size(); i++)
+    {
+        heap.push(new Machine(0, arr[i]));
+    }
+
+    vector<int> drinks(n);
+    for (int i = 0; i < n; i++)
+    {
+        Machine *cur = heap.top();
+        heap.pop();
+        cur->timePoint += cur->workTime;
+        drinks[i] = cur->timePoint;
+        heap.push(cur);
+    }
+    return d
+}
 
 int main()
 {
@@ -734,5 +1007,9 @@ int main()
     // cout << minStickers1(stickers, target) << endl;
     // cout << minStickers2(stickers, target) << endl;
     // cout << minStickers3(stickers, target) << endl;
+    // cout << longestPalindromeSubseq2("bbbab") << endl;
+
+    cout << jump1(7, 7, 10) << endl;
+    cout << jump2(7, 7, 10) << endl;
     return 0;
 }
